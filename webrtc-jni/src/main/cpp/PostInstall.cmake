@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.13)
+
+execute_process(
+	COMMAND objdump -p ${CMAKE_INSTALL_PREFIX}/libwebrtc-java.so
+	WORKING_DIRECTORY "${WEBRTC_SRC}"
+	OUTPUT_VARIABLE COMMAND_OUTPUT
+	ERROR_VARIABLE COMMAND_ERROR
+)
+
+message(STATUS "${COMMAND_OUTPUT}")

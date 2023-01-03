@@ -1,22 +1,15 @@
 cmake_minimum_required(VERSION 3.13)
+
+message(STATUS "${CMAKE_TOOLCHAIN_FILE}")
+
+if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+	message(FATAL_ERROR "TOOLCHAIN is not defined")
+endif ()
+
 project(webrtc-java)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
-endif()
-
-if(APPLE)
-	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
-	set(SOURCE_TARGET macos)
-elseif(LINUX)
-	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
-	set(SOURCE_TARGET linux)
-elseif(WIN32)
-	set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-	set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
-	set(SOURCE_TARGET windows)
 endif()
 
 add_subdirectory(dependencies/webrtc)
@@ -62,19 +55,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(${PROJECT_NAME} jni-voithos)
-target_link_libraries(${PROJECT_NAME} webrtc)
+target_link_libraries(${PROJECT_NAME} jni-voithos webrtc ${PROJECT_LIBRARIES_OS})
 
-if(APPLE)
-	set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
-	target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation" "-framework CoreMedia" "-framework CoreAudio")
-elseif(LINUX)
-	target_link_libraries(${PROJECT_NAME} -static-libgcc -static-libstdc++ pulse udev)
-elseif(WIN32)
-	target_link_libraries(${PROJECT_NAME} mf.lib mfreadwrite.lib mfplat.lib mfuuid.lib)
+if(DEFINED SOURCE_COMPILE_FLAGS)
+	set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${SOURCE_COMPILE_FLAGS})
 endif()
 
 install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT Runtime
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT Runtime
 )
+
+install (SCRIPT "${CMAKE_SOURCE_DIR}/PostInstall.cmake")

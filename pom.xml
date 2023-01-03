@@ -281,6 +281,19 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>linux-x86</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<platform.classifier>linux-x86</platform.classifier>
+				<platform.module>webrtc.linux.x86</platform.module>
+			</properties>
+		</profile>
+		<profile>
 			<id>linux-x86_64</id>
 			<activation>
 				<os>
@@ -291,6 +304,32 @@
 			<properties>
 				<platform.classifier>linux-x86_64</platform.classifier>
 				<platform.module>webrtc.linux.x86_64</platform.module>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-armhf</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>armhf</arch>
+				</os>
+			</activation>
+			<properties>
+				<platform.classifier>linux-armhf</platform.classifier>
+				<platform.module>webrtc.linux.armhf</platform.module>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-arm64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<platform.classifier>linux-arm64</platform.classifier>
+				<platform.module>webrtc.linux.arm64</platform.module>
 			</properties>
 		</profile>
 		<profile>
@@ -307,7 +346,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>mac-aarch64</id>
+			<id>mac-arm64</id>
 			<activation>
 				<os>
 					<family>mac</family>
@@ -315,8 +354,8 @@
 				</os>
 			</activation>
 			<properties>
-				<platform.classifier>macos-aarch64</platform.classifier>
-				<platform.module>webrtc.macos.aarch64</platform.module>
+				<platform.classifier>macos-arm64</platform.classifier>
+				<platform.module>webrtc.macos.arm64</platform.module>
 			</properties>
 		</profile>
 	</profiles>
@@ -338,13 +377,13 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.6.0</version>
+			<version>5.9.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.6.0</version>
+			<version>5.9.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

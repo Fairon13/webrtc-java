@@ -94,6 +94,9 @@
 									"${cmake.options}"
 								</option>
 								<option>
+									-DCMAKE_TOOLCHAIN_FILE=${cmake.toolchain}
+								</option>
+								<option>
 									-DWEBRTC_BRANCH=${webrtc.branch}
 								</option>
 								<option>
@@ -140,6 +143,79 @@
 			<properties>
 				<cmake.options>-Ax64</cmake.options>
 				<cmake.config>${cmake.build.type}</cmake.config>
+				<cmake.toolchain>toolchain/windows/msvc.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-x86</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/linux/gcc-x86.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-x86_64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/linux/gcc-x86_64.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-armhf</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>armhf</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/linux/gcc-armhf.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-arm64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/linux/gcc-arm64.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac-x86_64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/macos/clang-x86_64.cmake</cmake.toolchain>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac-arm64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<cmake.toolchain>toolchain/macos/clang-arm64.cmake</cmake.toolchain>
 			</properties>
 		</profile>
 	</profiles>

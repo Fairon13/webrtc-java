@@ -8,18 +8,6 @@ FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pseudo.cxx
 
 add_library(${PROJECT_NAME} STATIC pseudo.cxx pseudo.hxx)
 
-if(NOT DEFINED TARGET_CPU)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		set(TARGET_CPU "x86")
-	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(TARGET_CPU "x64")
-	endif()
-
-	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
-		set(TARGET_CPU "${CMAKE_SYSTEM_PROCESSOR}")
-	endif()
-endif()
-
 if(NOT DEFINED WEBRTC_BRANCH)
 	set(WEBRTC_BRANCH "master")
 endif()
@@ -87,7 +75,7 @@ function(sysroot_link)
 
 	message(STATUS "Linking libm.so from: ${WEBRTC_SRC_DIR}/${LIBM_PATH}")
 
-	target_link_libraries(${PROJECT_NAME} "${WEBRTC_SRC_DIR}/${LIBM_PATH}")
+	#target_link_libraries(${PROJECT_NAME} "${WEBRTC_SRC_DIR}/${LIBM_PATH}")
 endfunction()
 
 file(TO_CMAKE_PATH "${WEBRTC_SRC_DIR}" WEBRTC_SRC_DIR)
@@ -123,23 +111,15 @@ target_include_directories(${PROJECT_NAME}
 		${TARGET_INC_DIR}/third_party/abseil-cpp
 		${TARGET_INC_DIR}/third_party/libyuv/include
 )
-target_link_libraries(${PROJECT_NAME} ${TARGET_LINK_LIB})
 
-if(APPLE)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_MAC WEBRTC_POSIX)
-	target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation" "-framework CoreGraphics" "-framework CoreAudio" "-framework AudioToolbox" "-framework IOSurface" "-framework ApplicationServices" "-framework AppKit")
-elseif(LINUX)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_LINUX WEBRTC_POSIX)
-	target_link_libraries(${PROJECT_NAME} X11)
-elseif(WIN32)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_WIN NOMINMAX WIN32_LEAN_AND_MEAN)
-	target_link_libraries(${PROJECT_NAME} D3D11 DXGI user32 gdi32 iphlpapi dmoguids msdmo secur32 strmiids winmm wmcodecdspuuid ws2_32)
-endif()
+target_link_libraries(${PROJECT_NAME} ${TARGET_LINK_LIB} ${WEBRTC_LIBRARIES_OS})
+
+target_compile_definitions(${PROJECT_NAME} ${WEBRTC_COMPILE_DEFINITIONS})
 
 if(EXISTS "${WEBRTC_LIB_PATH}" OR EXISTS "${WEBRTC_LIB_PATH_INSTALLED}")
 	message(STATUS "WebRTC: Compiled version found '${TARGET_LINK_LIB}'")
 
-	if(LINUX)
+	if(LINUX AND "${TARGET_CPU}" MATCHES "^(x86|x64)$")
 		sysroot_link()
 	endif()
 
@@ -215,7 +195,7 @@ execute_command(
 	WORKING_DIRECTORY "${WEBRTC_SRC}"
 )
 
-if(LINUX)
+if(LINUX AND "${TARGET_CPU}" MATCHES "^(x86|x64)$")
 	sysroot_link()
 endif()
 
@@ -258,4 +238,3 @@ install(CODE "
 		endif()
 	endforeach()
 ")
-
