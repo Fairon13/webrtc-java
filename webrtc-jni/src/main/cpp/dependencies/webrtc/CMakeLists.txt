@@ -62,10 +62,19 @@ function(execute_command)
 	print("${COMMAND_ERROR}")
 endfunction()
 
-function(sysroot_link)
-	message(STATUS "Retrieving libm.so from sysroot")
+function(linux_sysroot_link)
+	message(STATUS "Retrieving libm.so from Linux sysroot")
+
+	if("${TARGET_CPU}" MATCHES "^(x64)$")
+		set(WEBRTC_SYSROOT "debian_sid_amd64-sysroot")
+	elseif("${TARGET_CPU}" MATCHES "^(arm)$")
+		set(WEBRTC_SYSROOT "debian_sid_arm-sysroot")
+	elseif("${TARGET_CPU}" MATCHES "^(arm64)$")
+		set(WEBRTC_SYSROOT "debian_sid_arm64-sysroot")
+	endif()
+
 	execute_process(
-		COMMAND find src/build/linux/debian_sid_amd64-sysroot -iname libm-*.so
+		COMMAND find src/build/linux/${WEBRTC_SYSROOT} -iname libm-*.so
 		WORKING_DIRECTORY "${WEBRTC_SRC_DIR}"
 		OUTPUT_VARIABLE COMMAND_OUTPUT
 		ERROR_VARIABLE COMMAND_ERROR
@@ -75,7 +84,7 @@ function(sysroot_link)
 
 	message(STATUS "Linking libm.so from: ${WEBRTC_SRC_DIR}/${LIBM_PATH}")
 
-	#target_link_libraries(${PROJECT_NAME} "${WEBRTC_SRC_DIR}/${LIBM_PATH}")
+	target_link_libraries(${PROJECT_NAME} "${WEBRTC_SRC_DIR}/${LIBM_PATH}")
 endfunction()
 
 file(TO_CMAKE_PATH "${WEBRTC_SRC_DIR}" WEBRTC_SRC_DIR)
@@ -85,6 +94,9 @@ set(WEBRTC_SRC ${WEBRTC_DIR}/src)
 set(WEBRTC_BUILD out/${TARGET_CPU})
 set(WEBRTC_LIB_PATH ${WEBRTC_SRC}/${WEBRTC_BUILD}/obj/${WEBRTC_LIB})
 set(WEBRTC_LIB_PATH_INSTALLED ${WEBRTC_INSTALL_DIR}/lib/${WEBRTC_LIB})
+
+set(TARGET_INC_DIR ${WEBRTC_SRC})
+set(TARGET_LINK_LIB ${WEBRTC_LIB_PATH})
 
 file(TO_CMAKE_PATH "${WEBRTC_DIR}" WEBRTC_DIR)
 file(TO_CMAKE_PATH "${WEBRTC_INSTALL_DIR}" WEBRTC_INSTALL_DIR)
@@ -97,14 +109,6 @@ message(STATUS "WebRTC target CPU: ${TARGET_CPU}")
 message(STATUS "WebRTC build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "WebRTC install path: ${WEBRTC_INSTALL_DIR}")
 
-if(EXISTS "${WEBRTC_LIB_PATH_INSTALLED}")
-	set(TARGET_INC_DIR ${WEBRTC_INSTALL_DIR}/include)
-	set(TARGET_LINK_LIB ${WEBRTC_LIB_PATH_INSTALLED})
-else()
-	set(TARGET_INC_DIR ${WEBRTC_SRC})
-	set(TARGET_LINK_LIB ${WEBRTC_LIB_PATH})
-endif()
-
 target_include_directories(${PROJECT_NAME}
 	PUBLIC
 		${TARGET_INC_DIR}
@@ -116,11 +120,11 @@ target_link_libraries(${PROJECT_NAME} ${TARGET_LINK_LIB} ${WEBRTC_LIBRARIES_OS})
 
 target_compile_definitions(${PROJECT_NAME} ${WEBRTC_COMPILE_DEFINITIONS})
 
-if(EXISTS "${WEBRTC_LIB_PATH}" OR EXISTS "${WEBRTC_LIB_PATH_INSTALLED}")
+if(EXISTS "${WEBRTC_LIB_PATH}")
 	message(STATUS "WebRTC: Compiled version found '${TARGET_LINK_LIB}'")
 
-	if(LINUX AND "${TARGET_CPU}" MATCHES "^(x86|x64)$")
-		sysroot_link()
+	if(LINUX)
+		linux_sysroot_link()
 	endif()
 
 	return()
@@ -182,6 +186,14 @@ if (PATCHES)
 	endforeach(PATCH)
 endif()
 
+if(LINUX AND "${TARGET_CPU}" MATCHES "^(arm|arm64)$")
+	message(STATUS "Installing sysroot for ${TARGET_CPU} architecture")
+	execute_command(
+		COMMAND build/linux/sysroot_scripts/install-sysroot.py --arch=${TARGET_CPU}
+		WORKING_DIRECTORY "${WEBRTC_SRC}"
+	)
+endif()
+
 message(STATUS "WebRTC: generate")
 set(COMPILE_ARGS "is_debug=false target_cpu=\"${TARGET_CPU}\" treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false symbol_level=0 rtc_use_h264=true")
 execute_command(
@@ -195,46 +207,6 @@ execute_command(
 	WORKING_DIRECTORY "${WEBRTC_SRC}"
 )
 
-if(LINUX AND "${TARGET_CPU}" MATCHES "^(x86|x64)$")
-	sysroot_link()
+if(LINUX)
+	linux_sysroot_link()
 endif()
-
-install(FILES "${WEBRTC_LIB_PATH}" DESTINATION "${WEBRTC_INSTALL_DIR}/lib")
-install(
-	DIRECTORY "${WEBRTC_SRC}/"
-	DESTINATION "${WEBRTC_INSTALL_DIR}/include"
-	FILES_MATCHING
-		PATTERN "*.h"
-		REGEX /src/base/ EXCLUDE
-		REGEX /src/build/ EXCLUDE
-		REGEX /src/build_overrides/ EXCLUDE
-		REGEX /src/buildtools/ EXCLUDE
-		REGEX /src/data/ EXCLUDE
-		REGEX /src/docs/ EXCLUDE
-		REGEX /src/examples/ EXCLUDE
-		REGEX /src/out/ EXCLUDE
-		REGEX /src/resources/ EXCLUDE
-		REGEX /src/sdk/ EXCLUDE
-		REGEX /src/stats/ EXCLUDE
-		REGEX /src/style-guide/ EXCLUDE
-		REGEX /src/test/ EXCLUDE
-		REGEX /src/testing/ EXCLUDE
-		REGEX "/src/third_party/(a[c-z].*|[b-k]|l[a-h|k-z].*|lib[a-x].*|[m-z])" EXCLUDE
-		REGEX /src/tools/ EXCLUDE
-		REGEX /src/tools_webrtc/ EXCLUDE
-		REGEX /test/ EXCLUDE
-)
-# Delete empty directories
-install(CODE "
-	file(GLOB_RECURSE headers LIST_DIRECTORIES true ${WEBRTC_INSTALL_DIR}/include/!*)
-
-	foreach(path \${headers})
-		file(GLOB result \"\${path}/*\")
-		list(LENGTH result file_count)
-
-		if(file_count EQUAL 0)
-			# DIR is empty
-			file(REMOVE_RECURSE \${path})
-		endif()
-	endforeach()
-")

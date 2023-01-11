@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-message(STATUS "${CMAKE_TOOLCHAIN_FILE}")
+message(STATUS "Toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 
 if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 	message(FATAL_ERROR "TOOLCHAIN is not defined")
