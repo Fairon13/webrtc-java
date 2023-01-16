@@ -38,8 +38,6 @@ namespace jni
 				jfieldID autoGainControl;
 				jfieldID noiseSuppression;
 				jfieldID highpassFilter;
-				jfieldID typingDetection;
-				jfieldID residualEchoDetector;
 		};
 
 		cricket::AudioOptions toNative(JNIEnv * env, const JavaRef<jobject> & javaType);

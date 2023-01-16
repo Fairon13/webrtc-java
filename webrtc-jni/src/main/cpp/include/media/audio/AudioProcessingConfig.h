@@ -38,9 +38,7 @@ namespace jni
 				jfieldID gainControl;
 				jfieldID highPassFilter;
 				jfieldID noiseSuppression;
-				jfieldID residualEchoDetector;
 				jfieldID transientSuppression;
-				jfieldID voiceDetection;
 		};
 
 		webrtc::AudioProcessing::Config toNative(JNIEnv * env, const JavaRef<jobject> & javaType);
@@ -84,9 +82,6 @@ namespace jni
 
 				jclass cls;
 				jfieldID enabled;
-				jfieldID dryRun;
-				jfieldID vadResetPeriodMs;
-				jfieldID adjacentSpeechFramesThreshold;
 				jfieldID maxGainChangeDbPerSecond;
 				jfieldID maxOutputNoiseLevelDbfs;
 		};
@@ -110,28 +105,10 @@ namespace jni
 				jfieldID level;
 		};
 
-		class JavaResidualEchoDetectorClass : public JavaClass
-		{
-			public:
-				explicit JavaResidualEchoDetectorClass(JNIEnv * env);
-
-				jclass cls;
-				jfieldID enabled;
-		};
-
 		class JavaTransientSuppressionClass : public JavaClass
 		{
 			public:
 				explicit JavaTransientSuppressionClass(JNIEnv * env);
-
-				jclass cls;
-				jfieldID enabled;
-		};
-
-		class JavaVoiceDetectionClass : public JavaClass
-		{
-			public:
-				explicit JavaVoiceDetectionClass(JNIEnv * env);
 
 				jclass cls;
 				jfieldID enabled;

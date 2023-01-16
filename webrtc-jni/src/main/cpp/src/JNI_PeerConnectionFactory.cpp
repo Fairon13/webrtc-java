@@ -60,19 +60,18 @@ JNIEXPORT void JNICALL Java_dev_onvoid_webrtc_PeerConnectionFactory_initialize
 		webrtc::AudioProcessing * processing = (audioProcessing != nullptr)
 			? GetHandle<webrtc::AudioProcessing>(env, audioProcessing)
 			: nullptr;
-		rtc::scoped_refptr<webrtc::AudioProcessing> apm(processing);
 
 		auto factory = webrtc::CreatePeerConnectionFactory(
 			networkThread.get(),
 			workerThread.get(),
 			signalingThread.get(),
-			audioDevModule,
+			rtc::scoped_refptr<webrtc::AudioDeviceModule>(audioDevModule),
 			webrtc::CreateBuiltinAudioEncoderFactory(),
 			webrtc::CreateBuiltinAudioDecoderFactory(),
 			webrtc::CreateBuiltinVideoEncoderFactory(),
 			webrtc::CreateBuiltinVideoDecoderFactory(),
 			nullptr,
-			apm);
+			rtc::scoped_refptr<webrtc::AudioProcessing>(processing));
 
 		if (factory != nullptr) {
 			SetHandle(env, caller, factory.release());

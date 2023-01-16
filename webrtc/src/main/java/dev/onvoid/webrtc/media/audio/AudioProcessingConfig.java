@@ -32,11 +32,7 @@ public class AudioProcessingConfig {
 
 	public final NoiseSuppression noiseSuppression = new NoiseSuppression();
 
-	public final ResidualEchoDetector residualEchoDetector = new ResidualEchoDetector();
-
 	public final TransientSuppression transientSuppression = new TransientSuppression();
-
-	public final VoiceDetection voiceDetection = new VoiceDetection();
 
 
 
@@ -60,11 +56,6 @@ public class AudioProcessingConfig {
 
 			public boolean enabled;
 
-			/** Run the adaptive digital controller but the signal is not modified. */
-			public boolean dryRun = false;
-
-			public int vadResetPeriodMs = 1500;
-			public int adjacentSpeechFramesThreshold = 12;
 			public float maxGainChangeDbPerSecond = 3.0f;
 			public float maxOutputNoiseLevelDbfs = -50.0f;
 
@@ -107,19 +98,7 @@ public class AudioProcessingConfig {
 
 	}
 
-	public static class ResidualEchoDetector {
-
-		public boolean enabled;
-
-	}
-
 	public static class TransientSuppression {
-
-		public boolean enabled;
-
-	}
-
-	public static class VoiceDetection {
 
 		public boolean enabled;
 

@@ -133,7 +133,7 @@ elseif(LINUX)
 	target_link_libraries(${PROJECT_NAME} X11)
 elseif(WIN32)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_WIN NOMINMAX WIN32_LEAN_AND_MEAN)
-	target_link_libraries(${PROJECT_NAME} D3D11 DXGI user32 gdi32 iphlpapi dmoguids msdmo secur32 strmiids winmm wmcodecdspuuid ws2_32)
+	target_link_libraries(${PROJECT_NAME} D3D11 DXGI dwmapi user32 gdi32 iphlpapi dmoguids msdmo secur32 strmiids winmm wmcodecdspuuid ws2_32)
 endif()
 
 if(EXISTS "${WEBRTC_LIB_PATH}" OR EXISTS "${WEBRTC_LIB_PATH_INSTALLED}")
@@ -183,6 +183,27 @@ execute_command(
 
 file(GLOB PATCHES "${CMAKE_CURRENT_LIST_DIR}/patches/${SOURCE_TARGET}/*.patch")
 
+
+if(WIN32)
+	# prioritize Git Patch on Windows as other Patches may be very old and incompatible.
+	find_package(Git)
+	if(Git_FOUND)
+		get_filename_component(GIT_DIR ${GIT_EXECUTABLE} DIRECTORY)
+		get_filename_component(GIT_DIR ${GIT_DIR} DIRECTORY)
+	endif()
+endif()
+
+find_program(PATCH_BIN
+	NAMES patch
+	HINTS ${GIT_DIR}
+	PATH_SUFFIXES usr/bin
+)
+
+if(NOT PATCH_BIN)
+	message(FATAL_ERROR "Did not find GNU Patch")
+endif()
+
+
 if (PATCHES)
 	message(STATUS "WebRTC: patch")
 
@@ -190,7 +211,7 @@ if (PATCHES)
 		message(STATUS "Applying ${PATCH}")
 
 		execute_process(
-			COMMAND patch -p0 --forward
+			COMMAND ${PATCH_BIN} -p0 --forward
 			WORKING_DIRECTORY "${WEBRTC_SRC_DIR}"
 			INPUT_FILE "${PATCH}"
 			OUTPUT_VARIABLE OUTPUT
@@ -203,7 +224,7 @@ if (PATCHES)
 endif()
 
 message(STATUS "WebRTC: generate")
-set(COMPILE_ARGS "is_debug=false target_cpu=\"${TARGET_CPU}\" treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false symbol_level=0 rtc_use_h264=true")
+set(COMPILE_ARGS "use_lld=false is_debug=false target_cpu=\"${TARGET_CPU}\" is_component_build=false treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false enable_iterator_debugging=false symbol_level=0 rtc_use_h264=true")
 execute_command(
 	COMMAND gn gen ${WEBRTC_BUILD} --args=${COMPILE_ARGS}
 	WORKING_DIRECTORY "${WEBRTC_SRC}"

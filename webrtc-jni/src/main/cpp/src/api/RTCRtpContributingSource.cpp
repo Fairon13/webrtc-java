@@ -45,12 +45,15 @@ namespace jni
 
 			JavaObject obj(env, source);
 
+			webrtc::RtpSource::Extensions extensions;
+			extensions.audio_level = static_cast<uint8_t>(obj.getDouble(javaClass->audioLevel));
+
 			return webrtc::RtpSource(
 				static_cast<int64_t>(obj.getLong(javaClass->timestamp)),
 				static_cast<uint32_t>(obj.getLong(javaClass->source)),
 				webrtc::RtpSourceType::CSRC,
-				static_cast<uint8_t>(obj.getDouble(javaClass->audioLevel)),
-				static_cast<uint32_t>(obj.getLong(javaClass->rtpTimestamp))
+				static_cast<uint32_t>(obj.getLong(javaClass->rtpTimestamp)),
+				extensions
 			);
 		}
 
