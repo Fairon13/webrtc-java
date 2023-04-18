@@ -126,13 +126,13 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${TARGET_LINK_LIB})
 
 if(APPLE)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_MAC WEBRTC_POSIX)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG WEBRTC_MAC WEBRTC_POSIX)
 	target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation" "-framework CoreGraphics" "-framework CoreAudio" "-framework AudioToolbox" "-framework IOSurface" "-framework ApplicationServices" "-framework AppKit")
 elseif(LINUX)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_LINUX WEBRTC_POSIX)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG WEBRTC_LINUX WEBRTC_POSIX)
 	target_link_libraries(${PROJECT_NAME} X11)
 elseif(WIN32)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC WEBRTC_WIN NOMINMAX WIN32_LEAN_AND_MEAN)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC NDEBUG WEBRTC_WIN NOMINMAX WIN32_LEAN_AND_MEAN)
 	target_link_libraries(${PROJECT_NAME} D3D11 DXGI dwmapi user32 gdi32 iphlpapi dmoguids msdmo secur32 strmiids winmm wmcodecdspuuid ws2_32)
 endif()
 
