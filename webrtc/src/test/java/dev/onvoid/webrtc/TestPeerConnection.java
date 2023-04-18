@@ -38,6 +38,7 @@ class TestPeerConnection implements PeerConnectionObserver {
 	private final List<String> receivedTexts;
 
 	private final CountDownLatch connectedLatch;
+	private final CountDownLatch dataOpenLatch;
 
 	private RTCPeerConnection localPeerConnection;
 
@@ -53,8 +54,24 @@ class TestPeerConnection implements PeerConnectionObserver {
 
 		localPeerConnection = factory.createPeerConnection(config, this);
 		localDataChannel = localPeerConnection.createDataChannel("dc", new RTCDataChannelInit());
+		localDataChannel.registerObserver(new RTCDataChannelObserver() {
+
+			@Override
+			public void onBufferedAmountChange(long previousAmount) { }
+
+			@Override
+			public void onStateChange() {
+				if (localDataChannel.getState() == RTCDataChannelState.OPEN) {
+					dataOpenLatch.countDown();
+				}
+			}
+
+			@Override
+			public void onMessage(RTCDataChannelBuffer buffer) { }
+		});
 		receivedTexts = new ArrayList<>();
 		connectedLatch = new CountDownLatch(1);
+		dataOpenLatch = new CountDownLatch(1);
 	}
 
 	@Override
@@ -94,6 +111,10 @@ class TestPeerConnection implements PeerConnectionObserver {
 
 	void waitUntilConnected() throws InterruptedException {
 		connectedLatch.await();
+	}
+
+	void waitUntilDataOpen() throws InterruptedException {
+		dataOpenLatch.await();
 	}
 
 	RTCSessionDescription createOffer() throws Exception {

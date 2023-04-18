@@ -35,8 +35,8 @@ class RTCDataChannelTests extends TestBase {
 		callee.setRemoteDescription(caller.createOffer());
 		caller.setRemoteDescription(callee.createAnswer());
 
-		caller.waitUntilConnected();
-		callee.waitUntilConnected();
+		caller.waitUntilDataOpen();
+		callee.waitUntilDataOpen();
 
 		caller.sendTextMessage("Hello world");
 		callee.sendTextMessage("Hi :)");
