@@ -17,11 +17,11 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, "${{ matrix.os }}"]
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-20.04, windows-2019]
+        os: [macos-latest, windows-2019]
         java: [13]
 
     env:
