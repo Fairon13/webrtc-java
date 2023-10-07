@@ -65,6 +65,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_link_libraries(${PROJECT_NAME} jni-voithos)
 target_link_libraries(${PROJECT_NAME} webrtc)
 
+
+target_include_directories(${PROJECT_NAME}
+	PRIVATE
+		C:/Users/Alex/Downloads/FFmpeg-n6.0-build/include
+)
+
+target_link_directories(${PROJECT_NAME} PUBLIC C:/Users/Alex/Downloads/FFmpeg-n6.0-build/bin)
+#target_link_libraries(${PROJECT_NAME} avutil avformat)
+
 if(APPLE)
 	set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 	target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation" "-framework CoreMedia" "-framework CoreAudio")

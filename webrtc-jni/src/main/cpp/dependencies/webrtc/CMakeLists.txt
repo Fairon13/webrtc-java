@@ -77,7 +77,7 @@ endfunction()
 function(sysroot_link)
 	message(STATUS "Retrieving libm.so from sysroot")
 	execute_process(
-		COMMAND find src/build/linux/debian_sid_amd64-sysroot -iname libm-*.so
+		COMMAND find src/build/linux/debian_bullseye_amd64-sysroot -iname libm-*.so
 		WORKING_DIRECTORY "${WEBRTC_SRC_DIR}"
 		OUTPUT_VARIABLE COMMAND_OUTPUT
 		ERROR_VARIABLE COMMAND_ERROR
@@ -224,7 +224,7 @@ if (PATCHES)
 endif()
 
 message(STATUS "WebRTC: generate")
-set(COMPILE_ARGS "use_lld=false is_debug=false target_cpu=\"${TARGET_CPU}\" is_component_build=false treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false enable_iterator_debugging=false symbol_level=0 rtc_use_h264=true")
+set(COMPILE_ARGS "is_debug=false target_cpu=\"${TARGET_CPU}\" is_component_build=false treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false enable_iterator_debugging=false symbol_level=0 rtc_use_h264=true")
 execute_command(
 	COMMAND gn gen ${WEBRTC_BUILD} --args=${COMPILE_ARGS}
 	WORKING_DIRECTORY "${WEBRTC_SRC}"
@@ -265,6 +265,7 @@ install(
 		REGEX /src/tools_webrtc/ EXCLUDE
 		REGEX /test/ EXCLUDE
 )
+
 # Delete empty directories
 install(CODE "
 	file(GLOB_RECURSE headers LIST_DIRECTORIES true ${WEBRTC_INSTALL_DIR}/include/!*)
@@ -279,4 +280,3 @@ install(CODE "
 		endif()
 	endforeach()
 ")
-
