@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, windows-2019]
+        os: [macos, windows]
         java: [13]
 
     env:
