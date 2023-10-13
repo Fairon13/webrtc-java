@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [linux, macos, windows]
-        java: [13]
+        java: [17]
 
     env:
       WEBRTC_CACHE_BRANCH: 4844
