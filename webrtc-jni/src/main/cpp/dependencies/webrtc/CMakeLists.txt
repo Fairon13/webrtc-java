@@ -168,36 +168,37 @@ if(NOT EXISTS "${WEBRTC_SRC_DIR}/depot_tools")
 	file(MAKE_DIRECTORY ${WEBRTC_SRC_DIR})
 	execute_command(
 		COMMAND git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-		WORKING_DIRECTORY "${WEBRTC_SRC_DIR}"
+		WORKING_DIRECTORY ${WEBRTC_SRC_DIR}
 	)
 endif()
 
-set(ENV{PATH} "${WEBRTC_SRC_DIR}/depot_tools${PATH_SEP}$ENV{PATH}")
+set(ENV{PATH} ${WEBRTC_SRC_DIR}/depot_tools${PATH_SEP}$ENV{PATH})
 
 file(MAKE_DIRECTORY ${WEBRTC_DIR})
 
 message(STATUS "WebRTC: fetch")
 execute_command(
 	COMMAND fetch --nohooks webrtc
-	WORKING_DIRECTORY "${WEBRTC_DIR}"
+	WORKING_DIRECTORY ${WEBRTC_DIR}
 )
 
 message(STATUS "WebRTC: checkout \"${WEBRTC_BRANCH}\"")
 execute_command(
 	COMMAND git checkout .
-	WORKING_DIRECTORY "${WEBRTC_SRC}"
+	WORKING_DIRECTORY ${WEBRTC_SRC}
 )
 execute_command(
 	COMMAND git checkout ${WEBRTC_BRANCH}
-	WORKING_DIRECTORY "${WEBRTC_SRC}"
+	WORKING_DIRECTORY ${WEBRTC_SRC}
 )
 
 message(STATUS "WebRTC: sync")
 execute_command(
 	COMMAND gclient sync
-	WORKING_DIRECTORY "${WEBRTC_DIR}"
+	WORKING_DIRECTORY ${WEBRTC_DIR}
 )
 
+#[[
 file(GLOB PATCHES "${CMAKE_CURRENT_LIST_DIR}/patches/${SOURCE_TARGET}/*.patch")
 
 if (PATCHES)
@@ -218,28 +219,29 @@ if (PATCHES)
 		endif()
 	endforeach(PATCH)
 endif()
+]]
 
 message(STATUS "WebRTC: generate")
 set(COMPILE_ARGS "is_debug=false target_cpu=\"${TARGET_CPU}\" treat_warnings_as_errors=false rtc_build_examples=false rtc_include_tests=false use_rtti=true use_custom_libcxx=false symbol_level=0 rtc_use_h264=true")
 execute_command(
 	COMMAND gn gen ${WEBRTC_BUILD} --args=${COMPILE_ARGS}
-	WORKING_DIRECTORY "${WEBRTC_SRC}"
+	WORKING_DIRECTORY ${WEBRTC_SRC}
 )
 
 message(STATUS "WebRTC: compile")
 execute_command(
-	COMMAND ninja -C "${WEBRTC_BUILD}"
-	WORKING_DIRECTORY "${WEBRTC_SRC}"
+	COMMAND ninja -C ${WEBRTC_BUILD}
+	WORKING_DIRECTORY ${WEBRTC_SRC}
 )
 
 if(LINUX)
 	sysroot_link()
 endif()
 
-install(FILES "${WEBRTC_LIB_PATH}" DESTINATION "${WEBRTC_INSTALL_DIR}/lib")
+install(FILES ${WEBRTC_LIB_PATH} DESTINATION ${WEBRTC_INSTALL_DIR}/lib)
 install(
-	DIRECTORY "${WEBRTC_SRC}/"
-	DESTINATION "${WEBRTC_INSTALL_DIR}/include"
+	DIRECTORY ${WEBRTC_SRC}/
+	DESTINATION ${WEBRTC_INSTALL_DIR}/include
 	FILES_MATCHING
 		PATTERN "*.h"
 		REGEX /src/base/ EXCLUDE
